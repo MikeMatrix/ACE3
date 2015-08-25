@@ -16,9 +16,18 @@
     "url": "https://github.com/MikeMatrix/ACE3/issues"
   },
   "devDependencies": {
-    "gulp": "~3.9.0",
+    "coffee-script": "~1.9.3",
     "del": "~1.2.1",
+    "gulp": "~3.9.0",
+    "gulp-debug": "^2.1.0",
+    "gulp-foreach": "^0.1.0",
+    "gulp-help": "^1.6.1",
+    "gulp-newer": "^0.5.1",
+    "gulp-run": "^1.6.10",
+    "gulp-shell": "^0.4.2",
+    "gulp-util": "^3.0.6",
+    "merge-stream": "^1.0.0",
     "require-dir": "~0.3.0",
-    "coffee-script": "~1.9.3"
+    "underscore": "^1.8.3"
   }
 }

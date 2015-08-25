@@ -1,5 +1,3 @@
-gulp = require 'gulp'
+require('gulp-help')(require 'gulp')
 requireDir = require 'require-dir'
 tasks = requireDir './tasks'
-
-gulp.task 'default', ->
