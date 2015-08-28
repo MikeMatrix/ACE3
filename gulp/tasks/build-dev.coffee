@@ -12,6 +12,7 @@ newer = require 'gulp-newer'
 debug = require 'gulp-debug'
 foreach = require 'gulp-foreach'
 shell = require 'gulp-shell'
+tap = require 'gulp-tap'
 
 # Let NodeJS know a lot is being run simultanious
 process.stdout.setMaxListeners(0)
@@ -29,7 +30,7 @@ getPBOs = (dir) ->
     .filter (file) ->
         fs.statSync(path.join(dir, file)).isFile() && path.extname(file) == ".pbo"
 
-gulp.task 'build-dev', "Build development files", ['build-dev-purge-obsolete', 'build-dev-build-newer']
+gulp.task 'build-dev', "Build development files", ['build-dev-purge-obsolete', 'build-dev-build']
 
 # Delete all obsolete PBOs that don't have a matching module folder
 gulp.task 'build-dev-purge-obsolete', "Delete all obsolete development PBOs that don't have a matching module folder.", (callback) ->
@@ -59,22 +60,14 @@ gulp.task 'build-dev-clean', "Delete all development PBOs.", (callback) ->
         callback(err)
 
 # Build all PBOs that have changed
-gulp.task 'build-dev-build-newer', "Build all changed development PBOs.", ['build-dev-purge-obsolete'], ->
+gulp.task 'build-dev-build', "Build all changed development PBOs.", ['build-dev-purge-obsolete'], ->
     modules = getFolders config.addons
 
     tasks = modules.map (addon) ->
         gulp.src path.join(config.addons, addon), read: false
-        .pipe newer(path.join(config.addons, "ace_#{addon}.pbo"))
+        .pipe if gutils.env.rebuild then gutils.noop() else newer(path.join(config.addons, "ace_#{addon}.pbo"))
         .pipe shell "makepbo -NUP -@=#{config.mainPrefix}\\#{config.prefix}\\addons\\#{addon} \"<%= file.path %>\" \"#{path.join config.addons, "#{config.prefix}_#{addon}.pbo"}\"", quiet: true
-
-    merge tasks
-
-# Build all PBOs
-gulp.task 'build-dev-build', "Build all development PBOs", ['build-dev-purge-obsolete'], ->
-    modules = getFolders config.addons
-
-    tasks = modules.map (addon) ->
-        gulp.src path.join(config.addons, addon), read: false
-        .pipe shell "makepbo -NUP -@=#{config.mainPrefix}\\#{config.prefix}\\addons\\#{addon} \"<%= file.path %>\" \"#{path.join config.addons, "#{config.prefix}_#{addon}.pbo"}\"", quiet: true
+        .pipe tap (file, t) ->
+            gutils.log "Finished building", gutils.colors.cyan(file.path), "=>", gutils.colors.cyan("#{path.join config.addons, "#{config.prefix}_#{addon}.pbo"}")
 
     merge tasks
